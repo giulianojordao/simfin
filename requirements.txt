@@ -1,0 +1,8 @@
+autopep8==1.2.4
+bottle==0.12.9
+numpy==1.11.0
+pep8==1.7.0
+py==1.4.31
+pyhdb==0.3.1
+pyRserve==0.8.4
+pytest==2.9.1
