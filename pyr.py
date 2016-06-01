@@ -3,7 +3,7 @@ import pyRserve
 conn = pyRserve.connect()
 
 
-def getRStats(xvar, breaks):
+def getRStats():
     prog = """
                 library(ggplot2)
                 graphics.off()

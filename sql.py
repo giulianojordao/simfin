@@ -1,0 +1,8 @@
+profits = """
+
+            SELECT SUM(ACDOCA."HPEINH") AS TOTAL_PRICE  FROM "SAPE1D"."ACDOCA" ACDOCA  INNER JOIN "SAPE1D"."KNA1" KNA1
+            ON KNA1."KUNNR" = ACDOCA."KUNNR"
+            GROUP BY KNA1."NAME1"
+
+
+"""

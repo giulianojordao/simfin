@@ -1,6 +1,7 @@
-import pyRserve
+import os
 import pyhdb
-from bottle import get, post, request, response, run  # or route
+from analytics import Analytics
+from bottle import get, post, request, response, run, redirect, template, static_file, route  # or route
 
 
 @get('/login')  # or @route('/login')
@@ -17,8 +18,6 @@ def login():
 
 @post('/login')  # or @route('/login', method='POST')
 def do_login():
-    response.content_type = 'image/jpeg'
-
     username = request.forms.get('username')
     password = request.forms.get('password')
     hostname = request.forms.get('hostname')
@@ -30,49 +29,30 @@ def do_login():
         password=password
     )
 
+    global cursor
     cursor = connection.cursor()
-    cursor.execute("""
+    redirect("/home")
 
-            SELECT SUM(ACDOCA."HPEINH") AS TOTAL_PRICE  FROM "SAPE1D"."ACDOCA" ACDOCA  INNER JOIN "SAPE1D"."KNA1" KNA1
-            ON KNA1."KUNNR" = ACDOCA."KUNNR"
 
-            GROUP BY KNA1."NAME1"
-            ORDER BY TOTAL_PRICE DESC
+@get('/home')
+def do_home():
+    return template("home.tpl", name='ranjan')
 
-        """)
 
-    res = cursor.fetchall()
+@get('/plot/rplot/<link>')
+def do_rplot(link):
+    global cursor
+    print(link)
+    if link == "link":
+        return "<img src='%s'/>" % ("/plot/rplot/er")
+    else:
+        response.content_type = 'image/jpeg'
+        return Analytics(cursor).get_r_plot()
 
-    connection.close(),
 
-    conn = pyRserve.connect()
-    arr = []
+@route('/static/<filename:path>')
+def serve_static(filename):
+    return static_file(filename, root=os.path.join(os.path.dirname(__file__), 'static'))
 
-    for i in res:
-        arr.append(float(i[0]))
-    print(arr)
-
-    conn.r.xvar = arr
-
-    prog = """
-                    library(ggplot2)
-                    graphics.off()
-                    pid <- Sys.getpid()
-
-                    filename <- paste('plot_',pid,'.png',sep="")
-                    png(width=480, height=480, file=filename)
-
-                    # print(qplot(carat, price, data = diamonds))
-                    plot(xvar,xvar,col="blue", xlab='HPEINH', ylab = 'ylbl')
-                    dev.off()
-
-                    im <- readBin(filename,"raw", 999999)
-
-                    result_vector <- im
-
-                """
-    bmp = conn.eval(prog)
-
-    return bmp
 
 run(host='localhost', port=8080, debug=True, reloader=True)
